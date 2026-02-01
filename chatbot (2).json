@@ -1,0 +1,178 @@
+{
+  "name": "chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Authorization\": \"Bearer YOUR_API_KEY_HERE\",\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"llama-3.1-8b-instant\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"{{$json.chatInput}}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        0
+     ],
+      "id": "01451946-bd3b-40d3-8602-e61fdd108f0d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c0149a56-ccb3-47d9-9399-ffb2c86c5004",
+              "name": "=script",
+              "value": "={{$json[\"choices\"][0][\"message\"][\"content\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "7ee8bc43-24c0-4fef-b97b-e94010d7d4c3",
+              "name": "response",
+              "value": "Thanks for response",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "29494b83-4b9c-4fba-b937-68d8fa975ec5",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "https://translate.google.com/translate_tts",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "ie",
+              "value": "UTF-8"
+            },
+            {
+              "name": "client",
+              "value": "tw-ob"
+            },
+            {
+              "name": "tl",
+              "value": "en"
+            },
+            {
+              "name": "q",
+              "value": "={{$json[\"script\"].slice(0,200)}}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "audio"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        624,
+        0
+      ],
+      "id": "ddd1071e-45cb-4924-a54e-d49f181fd1bf",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nMy name is Diya. How can I assist you today?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "44bd9919-fb04-42e4-a819-6f5f29d0b5d5",
+      "name": "When chat message received",
+      "webhookId": "367f2272-86cb-4ce6-b77e-a4fba6da148c",
+      "alwaysOutputData": false,
+      "retryOnFail": false,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        []
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "77d30320-1ea2-484c-a3d6-94248c7c0f63",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0d644c7219164da42b226ecca8a879243e012f74dea53ea50e35730d68d92d98"
+  },
+  "id": "zZHBNc3dZ1jesUTw",
+  "tags": []
+}
